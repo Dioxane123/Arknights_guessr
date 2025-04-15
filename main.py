@@ -1,9 +1,13 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 import pandas as pd
 import random
 import os
 import json
+import uuid
+
 app = Flask(__name__)
+# 设置一个密钥用于会话加密
+app.secret_key = os.environ.get('SECRET_KEY', 'arknights_guessr_secret')
 
 # 加载角色数据
 def load_character_data():
@@ -106,12 +110,27 @@ def compare_characters(guess, answer):
 
     return similarities
 
-# 游戏状态
-game_state = {
-    'current_answer': None,
-    'guesses': [],
-    'max_guesses': 10
-}
+# 获取当前用户的游戏状态
+def get_user_game_state():
+    # 确保用户有会话ID
+    if 'user_id' not in session:
+        session['user_id'] = str(uuid.uuid4())
+    
+    # 如果会话中没有游戏状态，创建一个新的
+    if 'game_state' not in session:
+        session['game_state'] = {
+            'current_answer': None,
+            'guesses': [],
+            'max_guesses': 10
+        }
+    
+    return session['game_state']
+
+# 更新用户游戏状态
+def update_user_game_state(game_state):
+    session['game_state'] = game_state
+    # 确保会话被保存
+    session.modified = True
 
 @app.route('/')
 def index():
@@ -120,8 +139,10 @@ def index():
 @app.route('/start_game', methods=['POST'])
 def start_game():
     characters = load_character_data()
+    game_state = get_user_game_state()
     game_state['current_answer'] = random.choice(characters)
     game_state['guesses'] = []
+    update_user_game_state(game_state)
     return jsonify({'status': 'success'})
 
 @app.route('/search', methods=['POST'])
@@ -141,6 +162,13 @@ def make_guess():
     guess_code = request.json.get('code')
     characters = load_character_data()
     
+    # 获取当前用户的游戏状态
+    game_state = get_user_game_state()
+    
+    # 确保游戏已经开始
+    if not game_state['current_answer']:
+        return jsonify({'error': '请先开始游戏'})
+    
     # 查找猜测的角色
     guessed_character = next((char for char in characters if char['id'] == guess_code), None)
     if not guessed_character:
@@ -157,6 +185,9 @@ def make_guess():
         'character': converted_character,
         'similarities': similarities
     })
+    
+    # 更新游戏状态
+    update_user_game_state(game_state)
     
     # 检查是否猜中
     is_correct = guessed_character['id'] == game_state['current_answer']['id']
