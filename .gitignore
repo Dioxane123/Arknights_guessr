@@ -1,1 +1,4 @@
 guessr
+data/operators.json
+process.py
+output.csv
