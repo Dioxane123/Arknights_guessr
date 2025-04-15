@@ -1,3 +1,4 @@
+.DS_Store
 guessr
 data/operators.json
 process.py
