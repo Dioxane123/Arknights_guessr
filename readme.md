@@ -1,11 +1,12 @@
 # 蒂一把——明日方舟猜角色
-灵感来源：Blast[], [二次元猜角色](https://anime-character-guessr.netlify.app/)
+灵感来源：[Blast](https://blast.tv/counter-strikle), [二次元猜角色](https://anime-character-guessr.netlify.app/)
+数据来源：明日方舟，[PRTS](https://prts.wiki)
 --
 ## 前言
 晚点再写，反正刚创仓库没人看。
 
 ## 目前已支持
-- 根据已有数据库猜角色。
+- 全角色均已支持，可在本地部署环境后本机游玩。
 - 在一台电脑上启动网页服务后局域网内设备游玩。
 
 
@@ -23,8 +24,9 @@ python main.py
 4. 打开浏览器并[访问本机12920端口](locohost:12920)
 
 ## 未来更新计划
-- [ ] 完成数据库。
+- [x] 完成数据库。
 - [ ] 支持部署在服务器上。
 - [ ] 优化展示表格，在手机上能正常使用。
 - [ ] 表格展示干员头像。
 - [ ] 支持多人在线对战。
+### 欢迎任何issue，有任何修改建议或者bug修正请直接提pr😘。
