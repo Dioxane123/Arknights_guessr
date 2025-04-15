@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchResults = document.getElementById('searchResults');
     const guessInputContainer = document.getElementById('guessInputContainer');
 
-    // 预设列名 - 移除子职业，因为会和职业合并
-    const tableColumns = ['代号', '英文代号', '职业', '星级', '所属阵营', '出身地', '种族', 'tag'];
+    // 预设列名 - 添加位置列
+    const tableColumns = ['代号', '英文代号', '职业', '星级', '所属阵营', '出身地', '种族', '位置', 'tag'];
     
     // 创建预设表格
     function createGuessTable() {
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.appendChild(dataRow);
     }
 
-    // 显示答案 - 合并职业和子职业的展示
+    // 显示答案 - 合并职业和子职业的展示，添加位置信息
     function displayAnswer(answer, isCorrect) {
         const resultMessage = isCorrect ? 
             "<h2>恭喜！您成功猜出了干员！</h2>" : 
@@ -202,6 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>所属阵营：${answer['所属阵营']}</p>
             <p>出身地：${answer['出身地']}</p>
             <p>种族：${answer['种族']}</p>
+            <p>位置：${answer['位置']}</p>
             <p>tag：${answer['tag']}</p>
         `;
         resultModal.style.display = 'block';

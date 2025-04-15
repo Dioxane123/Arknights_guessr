@@ -52,6 +52,41 @@ button:hover {
     background-color: #45a049;
 }
 
+/* 新增表格容器样式，使其可横向滚动 */
+#guessesContainer {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* 为iOS设备提供平滑滚动 */
+}
+
+.guess-table {
+    min-width: 800px; /* 设置表格最小宽度 */
+    border-collapse: collapse;
+    margin: 20px 0;
+    table-layout: fixed;
+    width: 100%;
+}
+
+.guess-table th, .guess-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 80px; /* 设置单元格最小宽度 */
+}
+
+/* 设置各列的宽度 */
+.guess-table th:nth-child(1), .guess-table td:nth-child(1) { width: 10%; } /* 代号 */
+.guess-table th:nth-child(2), .guess-table td:nth-child(2) { width: 10%; } /* 英文代号 */
+.guess-table th:nth-child(3), .guess-table td:nth-child(3) { width: 15%; } /* 职业 */
+.guess-table th:nth-child(4), .guess-table td:nth-child(4) { width: 8%; }  /* 星级 */
+.guess-table th:nth-child(5), .guess-table td:nth-child(5) { width: 12%; } /* 所属阵营 */
+.guess-table th:nth-child(6), .guess-table td:nth-child(6) { width: 10%; } /* 出身地 */
+.guess-table th:nth-child(7), .guess-table td:nth-child(7) { width: 10%; } /* 种族 */
+.guess-table th:nth-child(8), .guess-table td:nth-child(8) { width: 10%; } /* 位置 */
+.guess-table th:nth-child(9), .guess-table td:nth-child(9) { width: 15%; } /* tag */
+
 .guess-table {
     width: 100%;
     border-collapse: collapse;

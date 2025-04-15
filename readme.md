@@ -1,5 +1,6 @@
 # 蒂一把——明日方舟猜角色
 灵感来源：[Blast](https://blast.tv/counter-strikle), [二次元猜角色](https://anime-character-guessr.netlify.app/)
+
 数据来源：明日方舟，[PRTS](https://prts.wiki)
 --
 ## 前言

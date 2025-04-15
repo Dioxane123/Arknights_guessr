@@ -30,7 +30,8 @@ field_mapping = {
     'subcamp': '所属阵营',
     'tag1': 'tag',
     'origin': '出身地',
-    'species': '种族'
+    'species': '种族',
+    'position': '位置'
 }
 
 # 将英文字段名转换为中文字段名
@@ -44,6 +45,7 @@ def convert_to_chinese_fields(character):
     converted['所属阵营'] = character['subcamp']
     converted['出身地'] = character['origin']
     converted['种族'] = character['species']
+    converted['位置'] = character['position']
     
     # 合并所有tag为一个字符串
     tags = []
@@ -57,7 +59,7 @@ def convert_to_chinese_fields(character):
 # 比较两个角色的相似度
 def compare_characters(guess, answer):
     similarities = {}
-    for key in ['id', 'En_id', 'gender', 'star', 'species', 'origin']:
+    for key in ['id', 'En_id', 'gender', 'star', 'species', 'origin', 'position']:
         if key in guess and key in answer:
             if guess[key] == answer[key]:
                 # 将英文键名转换为中文键名
