@@ -70,15 +70,11 @@ sudo systemctl reload apache2
 - [x] 支持部署在服务器上。
 - [x] 优化展示表格，在手机上能正常使用。
 - [ ] 表格展示干员头像。
-- [ ] 支持多人在线对战。
+- [x] 支持本地多人在线对战。
+- [ ] 支持服务器多人在线对战。
 ### 欢迎任何issue，有任何修改建议或者bug修正请直接提pr😘。
 <p align="center">
     <img src="static/image/115411988_p13.jpg" width="300"><br>
-    <span style="font-size: 8px; color: gray;">
-        图片来源：
-        <a herf="https://www.pixiv.net/users/80625765">
-        是屑天痕
-        </a>
-        ，温蒂可爱捏。
-    </span>
 </p>
+
+> 图片来源：是屑天痕([pixiv](https://www.pixiv.net/users/80625765),[bilibili](https://space.bilibili.com/277914153))，温蒂可爱捏.
