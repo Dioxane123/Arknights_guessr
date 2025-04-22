@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeResultModal = document.querySelector('.multiplayer-close');
     const answerInfo = document.getElementById('multiplayer-answer-info');
     const resultsTable = document.getElementById('multiplayer-results-table');
+    const lastGameResultsContainer = document.getElementById('last-game-results');
     const unreadyBtn = document.getElementById('unready-btn');
     const restartBtn = document.getElementById('restart-btn');
     const errorModal = document.getElementById('error-modal');
@@ -37,33 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPlayers = [];
     let currentHost = '';
     let readyStatus = {};
+    let lastGameResults = null;
     
     // 表格列名
     const tableColumns = ['代号', '英文代号', '职业', '星级', '所属阵营', '出身地', '种族', '位置', 'tag'];
-    
-    // 创建预设表格 - 修改表格结构
-    function createGuessTable() {
-        const table = document.createElement('table');
-        table.className = 'guess-table';
-        table.id = 'multiplayer-guess-table';
-        
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-        
-        tableColumns.forEach(key => {
-            const th = document.createElement('th');
-            th.textContent = key;
-            headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-        
-        const tbody = document.createElement('tbody');
-        tbody.id = 'multiplayer-guess-table-body';
-        table.appendChild(tbody);
-        
-        return table;
-    }
     
     // 创建房间
     createRoomBtn.addEventListener('click', () => {
@@ -107,7 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('room_created', (data) => {
         isHost = true;
         roomCode = data.room_code;
-        username = usernameInput.value.trim();
+        currentHost = data.host;
+        readyStatus = data.ready_status || {};
         setupRoom(data);
     });
     
@@ -115,7 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('room_joined', (data) => {
         isHost = data.is_host;
         roomCode = data.room_code;
-        username = usernameInput.value.trim();
+        currentHost = data.host;
+        readyStatus = data.ready_status || {};
         setupRoom(data);
     });
     
@@ -127,13 +107,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 保存当前房间信息
         currentPlayers = data.players || [];
-        currentHost = data.host || '';
-        readyStatus = data.ready_status || {};
         
         // 更新玩家列表和准备状态
         updatePlayerList();
         
-        // 如果是房主，隐藏准备按钮，房主默认准备
+        // 如果是房主，隐藏准备按钮，显示开始按钮
         if (isHost) {
             readyBtn.classList.add('hidden');
             startGameBtn.classList.remove('hidden');
@@ -145,6 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
             isReady = readyStatus[username] || false;
             readyBtn.textContent = isReady ? '取消准备' : '准备';
             readyBtn.className = isReady ? 'ready' : 'not-ready';
+        }
+        
+        // 如果有上一局游戏结果，显示结果表格
+        if (lastGameResults) {
+            displayLastGameResults(lastGameResults);
         }
     }
     
@@ -168,6 +151,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 hostBadge.textContent = '房主';
                 hostBadge.className = 'host-badge';
                 li.appendChild(hostBadge);
+                
+                // 房主默认已准备
+                const readyBadge = document.createElement('span');
+                readyBadge.textContent = '已准备';
+                readyBadge.className = 'ready-badge';
+                li.appendChild(readyBadge);
             } 
             // 非房主显示准备状态
             else if (player in readyStatus) {
@@ -180,16 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
             playerList.appendChild(li);
         });
     }
-
+    
     // 玩家加入房间
     socket.on('player_joined', (data) => {
         currentPlayers = data.players || [];
         currentHost = data.host || '';
         readyStatus = data.ready_status || {};
         updatePlayerList();
-        
-        // 显示通知
-        console.log(`${data.username} 加入了房间`);
     });
     
     // 玩家离开房间
@@ -204,9 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
             readyBtn.classList.add('hidden');
             startGameBtn.classList.remove('hidden');
         }
-        
-        // 显示通知
-        console.log(`${data.username} 离开了房间`);
     });
     
     // 准备/取消准备按钮
@@ -216,13 +199,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 更新准备状态
     socket.on('ready_status_update', (data) => {
-        console.log("收到准备状态更新:", data.ready_status);
-        
-        // 更新准备状态
         readyStatus = data.ready_status || {};
         
         // 更新自己的准备状态UI
-        if (username in readyStatus) {
+        if (username in readyStatus && !isHost) {
             isReady = readyStatus[username];
             readyBtn.textContent = isReady ? '取消准备' : '准备';
             readyBtn.className = isReady ? 'ready' : 'not-ready';
@@ -238,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // 游戏开始
-    socket.on('game_started', (data) => {
+    socket.on('game_started', () => {
         roomArea.classList.add('hidden');
         gameArea.classList.remove('hidden');
         gameStarted = true;
@@ -247,8 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
         multiplayerGuessesContainer.innerHTML = '';
         multiplayerGuessesContainer.appendChild(createGuessTable());
     });
-    
-    // 搜索角色
+
+    // 搜索角色 - 添加干员搜索功能
     multiplayerGuessInput.addEventListener('input', async (e) => {
         const query = e.target.value.trim();
         if (query.length < 1) {
@@ -315,6 +295,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.username === username) {
             displayGuess(data.guessed_character, data.similarities);
         }
+        
+        // 可以添加其他玩家猜测的提示，但不显示具体内容
+        if (data.username !== username) {
+            console.log(`${data.username} 进行了猜测`);
+            // 可以添加一个提示元素显示其他玩家已猜测
+        }
     });
 
     // 显示猜测结果 - 修复表格错位问题
@@ -356,10 +342,39 @@ document.addEventListener('DOMContentLoaded', () => {
         
         tbody.appendChild(dataRow);
     }
+
+    // 创建猜测表格
+    function createGuessTable() {
+        const table = document.createElement('table');
+        table.className = 'guess-table';
+        table.id = 'multiplayer-guess-table';
+        
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        
+        tableColumns.forEach(key => {
+            const th = document.createElement('th');
+            th.textContent = key;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        
+        const tbody = document.createElement('tbody');
+        tbody.id = 'multiplayer-guess-table-body';
+        table.appendChild(tbody);
+        
+        return table;
+    }
     
-    // 游戏结束
+    // 游戏结束 - 保存结果并显示在准备阶段
     socket.on('game_over', (data) => {
         gameStarted = false;
+        lastGameResults = {
+            answer: data.answer,
+            winner: data.winner,
+            results: data.results
+        };
         
         // 显示结果模态框
         answerInfo.innerHTML = `
@@ -374,22 +389,45 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>tag：${data.answer['tag']}</p>
         `;
         
-        // 生成结果表格
-        generateResultsTable(data.results, data.winner);
-        
-        // 显示重新开始按钮
-        if (isHost) {
-            restartBtn.classList.remove('hidden');
-        } else {
-            restartBtn.classList.add('hidden');
-        }
-        
         resultModal.style.display = 'block';
+        
+        // 几秒后自动返回准备区域
+        setTimeout(() => {
+            resultModal.style.display = 'none';
+            roomArea.classList.remove('hidden');
+            gameArea.classList.add('hidden');
+            displayLastGameResults(lastGameResults);
+        }, 5000);
     });
     
-    // 生成结果表格
-    function generateResultsTable(results, winner) {
-        resultsTable.innerHTML = '';
+    // 显示上一局游戏结果
+    function displayLastGameResults(results) {
+        if (!results || !lastGameResultsContainer) return;
+        
+        lastGameResultsContainer.innerHTML = '';
+        
+        // 创建标题
+        const title = document.createElement('h3');
+        title.textContent = '上一局游戏结果';
+        lastGameResultsContainer.appendChild(title);
+        
+        // 如果有获胜者
+        if (results.winner) {
+            const winnerInfo = document.createElement('p');
+            winnerInfo.className = 'winner-info';
+            winnerInfo.textContent = `获胜者: ${results.winner}`;
+            lastGameResultsContainer.appendChild(winnerInfo);
+        }
+        
+        // 创建答案信息
+        const answerInfo = document.createElement('p');
+        answerInfo.className = 'answer-info';
+        answerInfo.textContent = `正确答案: ${results.answer['代号']} (${results.answer['英文代号']})`;
+        lastGameResultsContainer.appendChild(answerInfo);
+        
+        // 创建结果表格
+        const table = document.createElement('table');
+        table.className = 'results-table';
         
         // 创建表头
         const thead = document.createElement('thead');
@@ -401,25 +439,24 @@ document.addEventListener('DOMContentLoaded', () => {
         headerRow.appendChild(roundHeader);
         
         // 为每个玩家添加一列
-        Object.keys(results).forEach(player => {
+        Object.keys(results.results).forEach(player => {
             const th = document.createElement('th');
             th.textContent = player;
-            if (player === winner) {
-                th.style.color = 'green';
-                th.style.fontWeight = 'bold';
+            if (player === results.winner) {
+                th.className = 'winner-header';
             }
             headerRow.appendChild(th);
         });
         
         thead.appendChild(headerRow);
-        resultsTable.appendChild(thead);
+        table.appendChild(thead);
         
         // 创建表体
         const tbody = document.createElement('tbody');
         
         // 找出最大回合数
         let maxRounds = 0;
-        Object.values(results).forEach(playerResults => {
+        Object.values(results.results).forEach(playerResults => {
             maxRounds = Math.max(maxRounds, playerResults.length);
         });
         
@@ -433,15 +470,15 @@ document.addEventListener('DOMContentLoaded', () => {
             row.appendChild(roundCell);
             
             // 为每个玩家添加单元格
-            Object.keys(results).forEach(player => {
+            Object.keys(results.results).forEach(player => {
                 const td = document.createElement('td');
-                if (i < results[player].length) {
-                    const guess = results[player][i];
+                if (i < results.results[player].length) {
+                    const guess = results.results[player][i];
                     td.textContent = guess.character_id;
                     
                     if (guess.correct) {
                         td.innerHTML += ' ✅';
-                        td.classList.add('correct-guess');
+                        td.className = 'correct-guess';
                     } else {
                         td.innerHTML += ' ❌';
                     }
@@ -452,26 +489,9 @@ document.addEventListener('DOMContentLoaded', () => {
             tbody.appendChild(row);
         }
         
-        resultsTable.appendChild(tbody);
+        table.appendChild(tbody);
+        lastGameResultsContainer.appendChild(table);
     }
-    
-    // 取消准备按钮
-    unreadyBtn.addEventListener('click', () => {
-        socket.emit('toggle_ready', {});  // 同样发送空对象
-    });
-    
-    // 重新开始游戏
-    restartBtn.addEventListener('click', () => {
-        socket.emit('start_game');
-        resultModal.style.display = 'none';
-    });
-    
-    // 关闭结果模态框
-    closeResultModal.addEventListener('click', () => {
-        resultModal.style.display = 'none';
-        roomArea.classList.remove('hidden');
-        gameArea.classList.add('hidden');
-    });
     
     // 显示错误信息
     function showError(message) {
@@ -485,9 +505,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // 关闭错误模态框
-    closeErrorModal.addEventListener('click', () => {
-        errorModal.style.display = 'none';
-    });
+    if (closeErrorModal) {
+        closeErrorModal.addEventListener('click', () => {
+            errorModal.style.display = 'none';
+        });
+    }
+    
+    // 关闭结果模态框
+    if (closeResultModal) {
+        closeResultModal.addEventListener('click', () => {
+            resultModal.style.display = 'none';
+            roomArea.classList.remove('hidden');
+            gameArea.classList.add('hidden');
+        });
+    }
     
     // 点击模态框外部关闭
     window.addEventListener('click', (event) => {
@@ -501,8 +532,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // 离开页面时断开连接
-    window.addEventListener('beforeunload', () => {
-        socket.emit('leave_room');
-    });
+    // 取消准备按钮
+    if (unreadyBtn) {
+        unreadyBtn.addEventListener('click', () => {
+            socket.emit('toggle_ready', {});
+            resultModal.style.display = 'none';
+            roomArea.classList.remove('hidden');
+            gameArea.classList.add('hidden');
+        });
+    }
+    
+    // 再次开始按钮
+    if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+            socket.emit('start_game');
+            resultModal.style.display = 'none';
+        });
+    }
 });

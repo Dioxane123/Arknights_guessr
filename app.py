@@ -141,7 +141,7 @@ def on_create_room(data):
     
     # 创建房间 - 房主默认已准备
     rooms[room_code] = {
-        'players': {username: {'ready': True, 'is_host': True, 'guesses': []}},
+        'players': {username: {'ready': True, 'is_host': True, 'guesses': []}},  # 设置房主默认已准备
         'game_started': False,
         'current_answer': None,
         'host': username

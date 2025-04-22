@@ -150,19 +150,22 @@
 /* 添加其他玩家猜测提示样式 */
 .player-guess-notification {
     margin: 5px 0;
-    padding: 5px;
+    padding: 8px;
     background-color: #f0f0f0;
     border-radius: 4px;
     text-align: center;
     font-size: 14px;
     color: #555;
+    border-left: 3px solid #4CAF50;
 }
 
-/* 修复表格宽度 */
+/* 修复表格宽度和滑动功能 */
 #multiplayer-guesses-container {
     width: 100%;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch; /* 增强iOS设备的滑动体验 */
+    scrollbar-width: thin; /* 为Firefox提供细滚动条 */
+    touch-action: pan-x; /* 明确支持水平滑动手势 */
 }
 
 #multiplayer-guess-table {
@@ -176,21 +179,155 @@
 #multiplayer-guess-table th, 
 #multiplayer-guess-table td {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 10px 8px; /* 增加垂直内边距以适应换行 */
     text-align: left;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: break-word; /* 允许长单词断行 */
+    word-wrap: break-word; /* IE支持 */
+    word-break: break-word; /* 现代浏览器更好的断行行为 */
+    hyphens: auto; /* 自动添加连字符 */
+    white-space: normal; /* 允许文本自然换行 */
     min-width: 80px;
 }
 
+/* 提升移动端滚动体验的辅助样式 */
+@media (max-width: 768px) {
+    #multiplayer-guesses-container:after {
+        content: '← 左右滑动查看更多 →';
+        display: block;
+        text-align: center;
+        padding: 5px;
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+    
+    /* 增加表格单元格之间的区分度 */
+    #multiplayer-guess-table td {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        vertical-align: top;
+    }
+}
+
 /* 设置各列的宽度 */
-#multiplayer-guess-table th:nth-child(1), #multiplayer-guess-table td:nth-child(1) { width: 10%; } /* 代号 */
-#multiplayer-guess-table th:nth-child(2), #multiplayer-guess-table td:nth-child(2) { width: 10%; } /* 英文代号 */
-#multiplayer-guess-table th:nth-child(3), #multiplayer-guess-table td:nth-child(3) { width: 15%; } /* 职业 */
-#multiplayer-guess-table th:nth-child(4), #multiplayer-guess-table td:nth-child(4) { width: 8%; }  /* 星级 */
-#multiplayer-guess-table th:nth-child(5), #multiplayer-guess-table td:nth-child(5) { width: 12%; } /* 所属阵营 */
-#multiplayer-guess-table th:nth-child(6), #multiplayer-guess-table td:nth-child(6) { width: 10%; } /* 出身地 */
-#multiplayer-guess-table th:nth-child(7), #multiplayer-guess-table td:nth-child(7) { width: 10%; } /* 种族 */
-#multiplayer-guess-table th:nth-child(8), #multiplayer-guess-table td:nth-child(8) { width: 10%; } /* 位置 */
-#multiplayer-guess-table th:nth-child(9), #multiplayer-guess-table td:nth-child(9) { width: 15%; } /* tag */
+#multiplayer-guess-table th:nth-child(1), #multiplayer-guess-table td:nth-child(1) { width: 10%; min-width: 80px; } /* 代号 */
+#multiplayer-guess-table th:nth-child(2), #multiplayer-guess-table td:nth-child(2) { width: 10%; min-width: 90px; } /* 英文代号 */
+#multiplayer-guess-table th:nth-child(3), #multiplayer-guess-table td:nth-child(3) { width: 15%; min-width: 100px; } /* 职业 */
+#multiplayer-guess-table th:nth-child(4), #multiplayer-guess-table td:nth-child(4) { width: 8%; min-width: 50px; }  /* 星级 */
+#multiplayer-guess-table th:nth-child(5), #multiplayer-guess-table td:nth-child(5) { width: 12%; min-width: 100px; } /* 所属阵营 */
+#multiplayer-guess-table th:nth-child(6), #multiplayer-guess-table td:nth-child(6) { width: 10%; min-width: 90px; } /* 出身地 */
+#multiplayer-guess-table th:nth-child(7), #multiplayer-guess-table td:nth-child(7) { width: 10%; min-width: 80px; } /* 种族 */
+#multiplayer-guess-table th:nth-child(8), #multiplayer-guess-table td:nth-child(8) { width: 10%; min-width: 70px; } /* 位置 */
+#multiplayer-guess-table th:nth-child(9), #multiplayer-guess-table td:nth-child(9) { width: 15%; min-width: 120px; } /* tag */
+
+/* 上一局游戏结果样式 */
+.last-game-results {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.last-game-results h3 {
+    margin-top: 0;
+    color: #333;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.winner-info {
+    color: green;
+    font-weight: bold;
+    text-align: center;
+}
+
+.answer-info {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    overflow-x: auto;
+    display: block;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+}
+
+.results-table th, .results-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    word-break: break-word;
+    white-space: normal;
+}
+
+.results-table th {
+    background-color: #f2f2f2;
+}
+
+.results-table .winner-header {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.results-table .correct-guess {
+    color: green;
+    font-weight: bold;
+}
+
+/* 搜索结果样式 */
+#multiplayer-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.search-results-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.search-results-list li {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-results-list li:last-child {
+    border-bottom: none;
+}
+
+.search-results-list li:hover {
+    background-color: #f5f5f5;
+}
+
+.guess-input-container {
+    position: relative;
+    margin: 20px 0;
+    display: flex;
+}
+
+.guess-input-container input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+}
+
+.guess-input-container button {
+    border-radius: 0 4px 4px 0;
+}

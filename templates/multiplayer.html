@@ -42,6 +42,9 @@
                     <button id="ready-btn">准备</button>
                     <button id="start-game-btn" class="hidden">开始游戏</button>
                 </div>
+                
+                <!-- 添加上一局游戏结果容器 -->
+                <div id="last-game-results" class="last-game-results"></div>
             </div>
         </div>
         
@@ -64,14 +67,13 @@
                 <div id="multiplayer-results-table"></div>
                 <div class="post-game-controls">
                     <button id="unready-btn">取消准备</button>
-                    <button id="restart-btn" class="hidden">再次开始</button>
+                    <!-- <button id="restart-btn" class="hidden">再次开始</button> -->
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- 错误提示模态框 -->
-    <div id="error-modal" class="modal">
+        
+        <!-- 错误提示模态框 -->
+        <div id="error-modal" class="modal">
         <div class="modal-content">
             <span class="error-close">&times;</span>
             <h2>错误</h2>

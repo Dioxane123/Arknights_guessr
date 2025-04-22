@@ -52,6 +52,36 @@ button:hover {
     background-color: #45a049;
 }
 
+/* 重新调整头部容器和返回按钮样式 */
+.header-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative; /* 添加相对定位 */
+}
+
+.back-button {
+    padding: 8px 12px;
+    background-color: #555;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    position: absolute; /* 使返回按钮绝对定位 */
+    left: 0;
+}
+
+.back-button:hover {
+    background-color: #444;
+}
+
+/* 添加标题样式以确保居中 */
+.header-container h1 {
+    flex: 1;
+    text-align: center;
+    margin: 0 auto; /* 居中显示 */
+    width: 100%; /* 确保标题占满宽度 */
+}
+
 /* 新增表格容器样式，使其可横向滚动 */
 #guessesContainer {
     width: 100%;
