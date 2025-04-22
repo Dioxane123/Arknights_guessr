@@ -73,7 +73,7 @@ sudo systemctl reload apache2
 ### 欢迎任何issue，有任何修改建议或者bug修正请直接提pr😘。
 <p align="center">
     <img src="static/image/115411988_p13.jpg" width="300"><br>
-    <span style="font-size: 12px; color: gray;">
+    <span style="font-size: 8px; color: gray;">
         图片来源：
         <a herf="https://www.pixiv.net/users/80625765">
         是屑天痕

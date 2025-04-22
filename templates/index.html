@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>方舟角色猜猜呗</title>
+    <title>方舟角色猜猜呗 - 单人模式</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>方舟角色猜猜呗</h1>
+        <div class="header-container">
+            <a href="{{ url_for('mode_selection') }}" class="back-button">返回</a>
+            <h1>方舟角色猜猜呗 - 单人模式</h1>
+        </div>
         <div class="game-controls">
             <button id="startGame">开始新游戏</button>
             <div class="guess-input hidden" id="guessInputContainer">
@@ -28,4 +31,4 @@
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
-</html> 
+</html>

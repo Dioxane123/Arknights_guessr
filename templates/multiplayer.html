@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方舟角色猜猜呗 - 多人模式</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='multiplayer.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header-container">
+            <a href="{{ url_for('mode_selection') }}" class="back-button">返回</a>
+            <h1>方舟角色猜猜呗 - 多人模式</h1>
+        </div>
+        
+        <!-- 登录区域 -->
+        <div id="login-area">
+            <div class="login-form">
+                <h2>设置用户名</h2>
+                <input type="text" id="username-input" placeholder="输入您的用户名">
+                <div class="login-buttons">
+                    <button id="create-room-btn">创建房间</button>
+                    <div class="join-room-container">
+                        <input type="text" id="room-code-input" placeholder="输入房间号">
+                        <button id="join-room-btn">加入房间</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 房间区域 -->
+        <div id="room-area" class="hidden">
+            <div class="room-info">
+                <h2>房间号: <span id="room-code-display"></span></h2>
+                <div class="player-list-container">
+                    <h3>玩家列表</h3>
+                    <ul id="player-list"></ul>
+                </div>
+                <div class="room-controls">
+                    <button id="ready-btn">准备</button>
+                    <button id="start-game-btn" class="hidden">开始游戏</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 游戏区域 -->
+        <div id="game-area" class="hidden">
+            <div class="guess-input-container">
+                <input type="text" id="multiplayer-guess-input" placeholder="输入角色代号或英文代号">
+                <button id="multiplayer-submit-guess">猜测</button>
+                <div id="multiplayer-search-results" class="search-results"></div>
+            </div>
+            <div id="multiplayer-guesses-container"></div>
+        </div>
+        
+        <!-- 游戏结束模态框 -->
+        <div id="multiplayer-result-modal" class="modal">
+            <div class="modal-content">
+                <span class="multiplayer-close">&times;</span>
+                <h2>游戏结束</h2>
+                <div id="multiplayer-answer-info"></div>
+                <div id="multiplayer-results-table"></div>
+                <div class="post-game-controls">
+                    <button id="unready-btn">取消准备</button>
+                    <button id="restart-btn" class="hidden">再次开始</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 错误提示模态框 -->
+    <div id="error-modal" class="modal">
+        <div class="modal-content">
+            <span class="error-close">&times;</span>
+            <h2>错误</h2>
+            <p id="error-message"></p>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='multiplayer.js') }}"></script>
+</body>
+</html>

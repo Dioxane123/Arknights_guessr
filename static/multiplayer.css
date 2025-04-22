@@ -1,0 +1,196 @@
+.header-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.back-button {
+    padding: 8px 12px;
+    background-color: #555;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-right: 20px;
+}
+
+.login-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.login-form input {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.join-room-container {
+    display: flex;
+    gap: 10px;
+}
+
+.room-info {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.player-list-container {
+    margin: 15px 0;
+}
+
+#player-list {
+    list-style: none;
+    padding: 0;
+}
+
+.player-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 5px;
+}
+
+.player-name {
+    flex: 1;
+    text-align: left;
+}
+
+.room-controls {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.ready {
+    background-color: #4CAF50;
+}
+
+.not-ready {
+    background-color: #f44336;
+}
+
+.host-badge {
+    background-color: gold;
+    color: black;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.ready-badge {
+    background-color: #4CAF50;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.not-ready-badge {
+    background-color: #f44336;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+#multiplayer-results-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+#multiplayer-results-table th,
+#multiplayer-results-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+#multiplayer-results-table th {
+    background-color: #f2f2f2;
+}
+
+.correct-guess {
+    color: green;
+}
+
+.incorrect-guess {
+    color: red;
+}
+
+.post-game-controls {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* 添加其他玩家猜测提示样式 */
+.player-guess-notification {
+    margin: 5px 0;
+    padding: 5px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    color: #555;
+}
+
+/* 修复表格宽度 */
+#multiplayer-guesses-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#multiplayer-guess-table {
+    min-width: 800px;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    table-layout: fixed;
+}
+
+#multiplayer-guess-table th, 
+#multiplayer-guess-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 80px;
+}
+
+/* 设置各列的宽度 */
+#multiplayer-guess-table th:nth-child(1), #multiplayer-guess-table td:nth-child(1) { width: 10%; } /* 代号 */
+#multiplayer-guess-table th:nth-child(2), #multiplayer-guess-table td:nth-child(2) { width: 10%; } /* 英文代号 */
+#multiplayer-guess-table th:nth-child(3), #multiplayer-guess-table td:nth-child(3) { width: 15%; } /* 职业 */
+#multiplayer-guess-table th:nth-child(4), #multiplayer-guess-table td:nth-child(4) { width: 8%; }  /* 星级 */
+#multiplayer-guess-table th:nth-child(5), #multiplayer-guess-table td:nth-child(5) { width: 12%; } /* 所属阵营 */
+#multiplayer-guess-table th:nth-child(6), #multiplayer-guess-table td:nth-child(6) { width: 10%; } /* 出身地 */
+#multiplayer-guess-table th:nth-child(7), #multiplayer-guess-table td:nth-child(7) { width: 10%; } /* 种族 */
+#multiplayer-guess-table th:nth-child(8), #multiplayer-guess-table td:nth-child(8) { width: 10%; } /* 位置 */
+#multiplayer-guess-table th:nth-child(9), #multiplayer-guess-table td:nth-child(9) { width: 15%; } /* tag */

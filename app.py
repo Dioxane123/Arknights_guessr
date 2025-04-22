@@ -1,118 +1,21 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room
-import pandas as pd
 import random
 import os
-import json
 import uuid
-import string
 import time
+from game_logic import (
+    load_character_data, convert_to_chinese_fields, compare_characters, 
+    generate_room_code
+)
 
 app = Flask(__name__)
 # 设置一个密钥用于会话加密
 app.secret_key = os.environ.get('SECRET_KEY', 'arknights_guessr_secret')
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# 加载角色数据
-def load_character_data():
-    df = pd.read_csv('data/characters.csv')
-    return df.to_dict('records')
-
-# 加载职业数据
-def load_career_data():
-    with open('data/career.json', 'r') as f:
-        return json.load(f)
-
-# 加载阵营数据
-def load_camp_data():
-    with open('data/camp.json', 'r') as f:
-        return json.load(f)
-
-# 添加字段映射
-field_mapping = {
-    'id': '代号',
-    'En_id': '英文代号',
-    'career': '职业',
-    'subcareer': '子职业',
-    'star': '星级',
-    'subcamp': '所属阵营',
-    'tag1': 'tag',
-    'origin': '出身地',
-    'species': '种族',
-    'position': '位置'
-}
-
-# 将英文字段名转换为中文字段名
-def convert_to_chinese_fields(character):
-    converted = {}
-    converted['代号'] = character['id']
-    converted['英文代号'] = character['En_id']
-    converted['职业'] = character['career']
-    converted['子职业'] = character['subcareer']
-    converted['星级'] = character['star']
-    converted['所属阵营'] = character['subcamp']
-    converted['出身地'] = character['origin']
-    converted['种族'] = character['species']
-    converted['位置'] = character['position']
-    
-    # 合并所有tag为一个字符串
-    tags = []
-    for tag_key in ['tag1', 'tag2', 'tag3', 'tag4']:
-        if tag_key in character and character[tag_key] and not pd.isna(character[tag_key]):
-            tags.append(character[tag_key])
-    converted['tag'] = '、'.join(tags) if tags else ''
-    
-    return converted
-
-# 比较两个角色的相似度
-def compare_characters(guess, answer):
-    similarities = {}
-    for key in ['id', 'En_id', 'gender', 'star', 'species', 'origin', 'position']:
-        if key in guess and key in answer:
-            if guess[key] == answer[key]:
-                # 将英文键名转换为中文键名
-                chinese_key = field_mapping.get(key, key)
-                similarities[chinese_key] = 'green'
-            else:
-                chinese_key = field_mapping.get(key, key)
-                similarities[chinese_key] = 'white'
-    
-    # 处理职业 
-    if guess['career'] == answer['career']:
-        if guess['subcareer'] == answer['subcareer']:
-            similarities['职业'] = 'green'
-            similarities['子职业'] = 'green'
-        else:
-            similarities['职业'] = 'green'
-            similarities['子职业'] = 'yellow'
-    else:
-        similarities['职业'] = 'white'
-        similarities['子职业'] = 'white'
-
-    # 处理阵营
-    if guess['camp'] == answer['camp']:
-        if guess['subcamp'] == answer['subcamp']:
-            similarities['所属阵营'] = 'green'
-        else:
-            similarities['所属阵营'] = 'yellow'
-    else:
-        similarities['所属阵营'] = 'white'
-    
-    # 处理tag
-    guess_tags = [guess['tag1'], guess['tag2'], guess['tag3'], guess['tag4']]
-    answer_tags = [answer['tag1'], answer['tag2'], answer['tag3'], answer['tag4']]
-    guess_tags = [tag for tag in guess_tags if isinstance(tag, str)]
-    answer_tags = [tag for tag in answer_tags if isinstance(tag, str)]
-    
-    if any(tag in answer_tags for tag in guess_tags):
-        similarities['tag'] = 'yellow'  # 至少有一个tag匹配
-        # 如果所有tag都匹配则为绿色
-        if all(tag in answer_tags for tag in guess_tags) and all(tag in guess_tags for tag in answer_tags):
-            similarities['tag'] = 'green'
-    else:
-        similarities['tag'] = 'white'
-
-    return similarities
+# 房间管理
+rooms = {}
 
 # 获取当前用户的游戏状态
 def get_user_game_state():
@@ -136,10 +39,27 @@ def update_user_game_state(game_state):
     # 确保会话被保存
     session.modified = True
 
+# 路由：首页
 @app.route('/')
 def index():
     return render_template('index.html')
 
+# 路由：模式选择
+@app.route('/mode_selection')
+def mode_selection():
+    return render_template('mode_selection.html')
+
+# 路由：单人模式
+@app.route('/singleplayer')
+def singleplayer():
+    return render_template('index.html')
+
+# 路由：多人模式
+@app.route('/multiplayer')
+def multiplayer():
+    return render_template('multiplayer.html')
+
+# 路由：开始游戏
 @app.route('/start_game', methods=['POST'])
 def start_game():
     characters = load_character_data()
@@ -149,6 +69,7 @@ def start_game():
     update_user_game_state(game_state)
     return jsonify({'status': 'success'})
 
+# 路由：搜索角色
 @app.route('/search', methods=['POST'])
 def search_character():
     query = request.json.get('query', '').lower()
@@ -161,6 +82,7 @@ def search_character():
     
     return jsonify({'results': converted_results[:10]})  # 限制结果数量
 
+# 路由：进行猜测
 @app.route('/guess', methods=['POST'])
 def make_guess():
     guess_code = request.json.get('code')
@@ -208,27 +130,7 @@ def make_guess():
         'answer': converted_answer
     })
 
-# 房间管理
-rooms = {}
-
-def generate_room_code():
-    """生成10位随机房间号"""
-    chars = string.ascii_letters
-    return ''.join(random.choice(chars) for _ in range(10))
-
-@app.route('/mode_selection')
-def mode_selection():
-    return render_template('mode_selection.html')
-
-@app.route('/singleplayer')
-def singleplayer():
-    return render_template('index.html')
-
-@app.route('/multiplayer')
-def multiplayer():
-    return render_template('multiplayer.html')
-
-# SocketIO事件处理
+# SocketIO事件：创建房间
 @socketio.on('create_room')
 def on_create_room(data):
     username = data['username']
@@ -237,9 +139,9 @@ def on_create_room(data):
     while room_code in rooms:
         room_code = generate_room_code()
     
-    # 创建房间
+    # 创建房间 - 房主默认已准备
     rooms[room_code] = {
-        'players': {username: {'ready': False, 'is_host': True, 'guesses': []}},
+        'players': {username: {'ready': True, 'is_host': True, 'guesses': []}},
         'game_started': False,
         'current_answer': None,
         'host': username
@@ -250,10 +152,17 @@ def on_create_room(data):
     session['username'] = username
     join_room(room_code)
     
-    # 返回房间信息
-    emit('room_created', {'room_code': room_code, 'players': list(rooms[room_code]['players'].keys()), 
-                        'is_host': True, 'host': username})
+    # 返回房间信息，包含所有玩家准备状态
+    ready_status = {player: info['ready'] for player, info in rooms[room_code]['players'].items()}
+    emit('room_created', {
+        'room_code': room_code, 
+        'players': list(rooms[room_code]['players'].keys()), 
+        'is_host': True, 
+        'host': username,
+        'ready_status': ready_status
+    })
 
+# SocketIO事件：加入房间
 @socketio.on('join_room')
 def on_join_room(data):
     username = data['username']
@@ -281,20 +190,27 @@ def on_join_room(data):
     session['username'] = username
     join_room(room_code)
     
-    # 通知房间内所有人有新玩家加入
-    emit('player_joined', {'username': username, 'players': list(rooms[room_code]['players'].keys()),
-                          'host': rooms[room_code]['host']}, room=room_code)
+    # 通知房间内所有人有新玩家加入，包含准备状态
+    ready_status = {player: info['ready'] for player, info in rooms[room_code]['players'].items()}
+    emit('player_joined', {
+        'username': username, 
+        'players': list(rooms[room_code]['players'].keys()),
+        'host': rooms[room_code]['host'],
+        'ready_status': ready_status
+    }, room=room_code)
     
-    # 返回房间信息给新加入的玩家
+    # 返回房间信息给新加入的玩家，包含准备状态
     emit('room_joined', {
         'room_code': room_code,
         'players': list(rooms[room_code]['players'].keys()),
         'host': rooms[room_code]['host'],
-        'is_host': False
+        'is_host': False,
+        'ready_status': ready_status
     })
 
+# SocketIO事件：切换准备状态
 @socketio.on('toggle_ready')
-def on_toggle_ready(data):
+def on_toggle_ready(data=None):  # 修改这里，让data参数成为可选的
     username = session.get('username')
     room_code = session.get('room')
     
@@ -309,6 +225,7 @@ def on_toggle_ready(data):
     ready_status = {player: info['ready'] for player, info in rooms[room_code]['players'].items()}
     emit('ready_status_update', {'ready_status': ready_status}, room=room_code)
 
+# SocketIO事件：开始游戏
 @socketio.on('start_game')
 def on_start_game():
     username = session.get('username')
@@ -345,6 +262,7 @@ def on_start_game():
     # 广播游戏开始
     emit('game_started', {}, room=room_code)
 
+# SocketIO事件：进行猜测
 @socketio.on('make_guess')
 def on_make_guess(data):
     guess_code = data['code']
@@ -441,6 +359,7 @@ def on_make_guess(data):
         ready_status = {player: info['ready'] for player, info in rooms[room_code]['players'].items()}
         emit('ready_status_update', {'ready_status': ready_status}, room=room_code)
 
+# SocketIO事件：离开房间
 @socketio.on('leave_room')
 def on_leave_room():
     username = session.get('username')
@@ -475,6 +394,7 @@ def on_leave_room():
             'host': rooms[room_code]['host']
         }, room=room_code)
 
+# SocketIO事件：断开连接
 @socketio.on('disconnect')
 def on_disconnect():
     on_leave_room()
