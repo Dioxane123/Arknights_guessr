@@ -1,10 +1,15 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>方舟角色猜猜呗</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% extends "base.html" %}
+
+{% block title %}方舟角色猜猜呗{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>方舟角色猜猜呗</h1>
+    <div class="mode-selection">
+        <a href="{{ url_for('singleplayer') }}" class="mode-button">单人模式</a>
+        <a href="{{ url_for('multiplayer') }}" class="mode-button">多人模式</a>
+    </div>
+
     <style>
         .mode-selection {
             display: flex;
@@ -21,19 +26,11 @@
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s;
+            text-decoration: none;
         }
         .mode-button:hover {
             background-color: #45a049;
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1>方舟角色猜猜呗</h1>
-        <div class="mode-selection">
-            <a href="{{ url_for('singleplayer') }}" class="mode-button">单人模式</a>
-            <a href="{{ url_for('multiplayer') }}" class="mode-button">多人模式</a>
-        </div>
-    </div>
-</body>
-</html>
+</div>
+{% endblock %}
