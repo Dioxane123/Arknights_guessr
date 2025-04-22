@@ -223,6 +223,12 @@ document.addEventListener('DOMContentLoaded', () => {
         gameArea.classList.remove('hidden');
         gameStarted = true;
         
+        // 重置输入框状态
+        multiplayerGuessInput.disabled = false;
+        multiplayerSubmitGuess.disabled = false;
+        multiplayerGuessInput.classList.remove('disabled-input');
+        multiplayerSubmitGuess.classList.remove('disabled-button');
+        
         // 创建猜测表格
         multiplayerGuessesContainer.innerHTML = '';
         multiplayerGuessesContainer.appendChild(createGuessTable());
@@ -487,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             tbody.appendChild(row);
-        }
+        };
         
         table.appendChild(tbody);
         lastGameResultsContainer.appendChild(table);
@@ -547,6 +553,61 @@ document.addEventListener('DOMContentLoaded', () => {
         restartBtn.addEventListener('click', () => {
             socket.emit('start_game');
             resultModal.style.display = 'none';
+        });
+    }
+
+    // 添加接收猜测用尽事件的处理
+    socket.on('guesses_exhausted', (data) => {
+        // 显示弹窗提示
+        showExhaustedModal(data.message);
+        
+        // 禁用猜测输入框和按钮
+        multiplayerGuessInput.disabled = true;
+        multiplayerSubmitGuess.disabled = true;
+        
+        // 添加视觉提示
+        multiplayerGuessInput.classList.add('disabled-input');
+        multiplayerSubmitGuess.classList.add('disabled-button');
+    });
+
+    // 创建猜测次数用尽的弹窗函数
+    function showExhaustedModal(message) {
+        // 创建模态框
+        const exhaustedModal = document.createElement('div');
+        exhaustedModal.id = 'exhausted-modal';
+        exhaustedModal.className = 'modal';
+        
+        // 创建模态框内容
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content exhausted-modal-content';
+        
+        // 添加关闭按钮
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'close';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.onclick = function() {
+            exhaustedModal.style.display = 'none';
+        };
+        
+        // 添加提示消息
+        const messageElement = document.createElement('h3');
+        messageElement.className = 'exhausted-message';
+        messageElement.textContent = message;
+        
+        // 组装模态框
+        modalContent.appendChild(closeBtn);
+        modalContent.appendChild(messageElement);
+        exhaustedModal.appendChild(modalContent);
+        
+        // 添加到文档并显示
+        document.body.appendChild(exhaustedModal);
+        exhaustedModal.style.display = 'block';
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', (event) => {
+            if (event.target === exhaustedModal) {
+                exhaustedModal.style.display = 'none';
+            }
         });
     }
 });

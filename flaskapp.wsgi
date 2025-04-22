@@ -1,3 +1,4 @@
+# 当前版本改用Eventlet+Gunicorn处理并发场景，Apache2仅用作反向代理，理论上此文件已经没用了，在以后的版本中会删除.
 import sys
 import os
 sys.path.insert(0, '/var/www/flaskapp')

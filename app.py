@@ -286,6 +286,14 @@ def on_make_guess(data):
         emit('error', {'message': '游戏尚未开始'})
         return
     
+    # 定义最大猜测次数
+    max_guesses = 10
+    
+    # 检查玩家是否已经用完猜测次数
+    if len(rooms[room_code]['players'][username]['guesses']) >= max_guesses:
+        emit('error', {'message': '您已用完所有猜测次数'})
+        return
+    
     characters = load_character_data()
     
     # 查找猜测的角色
@@ -317,6 +325,13 @@ def on_make_guess(data):
         'is_correct': guessed_character['id'] == rooms[room_code]['current_answer']['id']
     }, room=room_code)
     
+    # 检查当前玩家是否用完猜测次数
+    if len(rooms[room_code]['players'][username]['guesses']) >= max_guesses:
+        # 通知该玩家已用完猜测次数
+        emit('guesses_exhausted', {
+            'message': '您已用完所有猜测次数，请等待其他玩家完成游戏'
+        })
+    
     # 检查游戏是否结束
     game_over = False
     winner = None
@@ -326,15 +341,16 @@ def on_make_guess(data):
         game_over = True
         winner = username
     else:
-        # 检查是否所有玩家都用尽次数
-        max_guesses = 10
-        all_used_max = True
+        # 检查是否所有玩家都用尽次数或者答对了
+        all_finished = True
         for player, info in rooms[room_code]['players'].items():
-            if len(info['guesses']) < max_guesses:
-                all_used_max = False
+            # 如果有玩家既没有答对，也没有用完次数，游戏继续
+            has_correct = any(g['is_correct'] for g in info['guesses'])
+            if not has_correct and len(info['guesses']) < max_guesses:
+                all_finished = False
                 break
         
-        if all_used_max:
+        if all_finished:
             game_over = True
     
     # 游戏结束处理
@@ -359,7 +375,7 @@ def on_make_guess(data):
         # 广播游戏结束
         emit('game_over', {
             'answer': converted_answer,
-            'winner': winner,
+            'winner': winner,  # 如果没有人答对，winner将为None
             'results': results
         }, room=room_code)
         

@@ -331,3 +331,67 @@
 .guess-input-container button {
     border-radius: 0 4px 4px 0;
 }
+
+/* 猜测用尽消息样式 */
+.exhausted-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* 猜测用尽弹窗样式 */
+.exhausted-modal-content {
+    background-color: #fef0f0;
+    border-top: 4px solid #dc3545;
+}
+
+.exhausted-message {
+    color: #721c24;
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* 禁用的输入框和按钮样式 */
+.disabled-input, .disabled-button {
+    background-color: #f8f8f8;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.disabled-input::placeholder {
+    color: #aaa;
+}
+
+/* 添加提示标记，表示用户已用完猜测次数 */
+.guess-input-container.exhausted:after {
+    content: "已用完所有猜测次数";
+    display: block;
+    color: #dc3545;
+    font-size: 14px;
+    padding: 5px;
+    text-align: center;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+/* 无胜者信息样式 */
+.no-winner-info {
+    color: #856404;
+    background-color: #fff3cd;
+    padding: 8px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* 禁用输入框和按钮样式 */
+input:disabled, button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
