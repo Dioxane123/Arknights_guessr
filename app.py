@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()  # 这会修补Python标准库
+
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import random
@@ -12,7 +15,12 @@ from game_logic import (
 app = Flask(__name__)
 # 设置一个密钥用于会话加密
 app.secret_key = os.environ.get('SECRET_KEY', 'arknights_guessr_secret')
-socketio = SocketIO(app, cors_allowed_origins="*")
+# 配置SocketIO使用eventlet
+socketio = SocketIO(app, 
+                   async_mode='eventlet',
+                   cors_allowed_origins="*",
+                   logger=True,
+                   engineio_logger=True)
 
 # 房间管理
 rooms = {}
@@ -400,4 +408,5 @@ def on_disconnect():
     on_leave_room()
 
 if __name__ == '__main__':
+    # 注意端口号，Apache将反向代理到这个端口
     socketio.run(app, debug=False, host='0.0.0.0', port=12920)
