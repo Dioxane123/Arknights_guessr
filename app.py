@@ -42,7 +42,7 @@ def update_user_game_state(game_state):
 # 路由：首页
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('mode_selection.html')
 
 # 路由：模式选择
 @app.route('/mode_selection')
@@ -400,4 +400,4 @@ def on_disconnect():
     on_leave_room()
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host='0.0.0.0', port=12920)
+    socketio.run(app, debug=False, host='0.0.0.0', port=12920)
