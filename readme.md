@@ -40,9 +40,9 @@ python main.py
 sudo apt update
 sudo apt install apache2 -y
 ```
-3. 将本项目clone到/var/www/flaskapp路径下。
+3. 将本项目clone到默认路径下。
 ```bash
-sudo git clone https://github.com/Dioxane123/Arknights_guessr.git /var/www/flaskapp
+sudo git clone https://github.com/Dioxane123/Arknights_guessr.git ~
 ```
 4. 在用户目录中创建一个虚拟环境并安装所需包。
 ```bash
@@ -54,20 +54,22 @@ pip install -r /var/www/flaskapp/requirements.txt
 ```
 5. 修改apache配置文件，将`flaskapp.conf`的ServerName对应值修改为你的域名或者服务器ip，并执行以下命令移动配置文件。
 ```bash
-sudo mv /var/www/flaskapp/flaskapp.conf /etc/apache2/sites-available
-```
-6. 修改wsgi文件
-打开`flaskapp.wsgi`文件，将第10行和第11行中`{your-user-name}`替换成你服务器上的用户名。
-```bash
-vim flaskapp.wsgi
+sudo mv ~/flaskapp.conf /etc/apache2/sites-available
 ```
 7. 启用站点
 ```bash
-sudo a2enmod wsgi
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod proxy_wstunnel
 sudo a2ensite /etc/apache2/sites0available/flaskapp.conf
-sudo systemctl reload apache2
+sudo systemctl restart apache2
 ```
-1. 现在应该已经成功部署了，可以打开浏览器测试了！🥳
+8. 启动服务端
+请使用systemctl, supervisor等方法执行项目文件夹中的start_server.sh并保持持续执行。
+```bash
+bash start_server.sh
+```
+9.  现在应该已经成功部署了，可以打开浏览器测试了！🥳
 - 关于证书等等问题可以找其他教程或者直接问大模型，大模型确实好用啊👍
 
 ## 未来更新计划
