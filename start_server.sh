@@ -12,4 +12,4 @@ fi
 # 使用gunicorn启动服务
 echo "Starting server with Eventlet worker..."
 export PYTHONUNBUFFERED=1
-gunicorn --worker-class eventlet -w 1 -b 0.0.0.0:12920 app:app
+gunicorn --worker-class eventlet -w 3 -b 0.0.0.0:12920 app:app

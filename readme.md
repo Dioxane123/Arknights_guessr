@@ -1,11 +1,19 @@
 # 蒂一把——明日方舟猜角色
-> 灵感来源：[Blast](https://blast.tv/counter-strikle), [二次元猜角色](https://anime-character-guessr.netlify.app/)
+<p align="center">
+    <img src="static/image/115411988_p13.jpg" width="300"><br>
+</p>
 
-> 数据来源：明日方舟，[PRTS](https://prts.wiki)
+> 灵感来源：[Blast](https://blast.tv/counter-strikle), [二次元猜角色](https://anime-character-guessr.netlify.app/)
+数据来源：明日方舟，[PRTS](https://prts.wiki)
 
 ## 前言
-晚点再写，反正刚创仓库没人看。🫥
-
+目前算是结项了，后续应该不会再有大更新，只会添加新的干员信息了。
+很遗憾，最后还是没有彻底战胜在服务器上多人游戏卡顿的问题。虽然后面用上了使用了Redis做会话管理，但是在阿里云2g2c的服务器上玩的人多了还是会卡得很。所以如果想玩的话还是推荐玩单人模式，如果服务器还没过期的话可以直接点下面的网址体验。
+干员头像算是弃坑了，即使后续更新出这个内容也不会是我更新了，果咩。
+这是自己第一次进行整个项目的vibe coding，大部分代码由copilot生成。我自己其实根本不懂前后端相关的知识，但是还是完成了这样一个项目，切实体会到了“现代”编程有多轻松，感谢copilot🙏。（其实最开始是打算用cursor的，但是没米qwq）
+当然，虽然已经结项了，本项目仍然欢迎提issue反馈bug，只是不一定有时间改。直接提交pr依旧是欢迎的。
+最后，玩的开心！
+——Dioxane, 2025.5.20
 ## 规则
 - 点击`开始新游戏`开始游戏，系统将从数据库中随机选择一个谜底干员。
 - 在输入框输入目标干员中文或英文id的部分，在搜索推荐框中选择目标干员。
@@ -35,16 +43,17 @@ python main.py
 
 ## 服务器上部署安装教程(简洁版)
 1. 准备一台服务器，确认80与443端口对外开放。
-2. 配置Apache2环境。
+2. 配置Redis服务器，本项目使用的Redis数据库端口为默认的6379，具体使用DB为0号，如果有需求可以在`app.py`文件内自行修改相关配置。
+3. 配置Apache2环境。
 ```bash
 sudo apt update
 sudo apt install apache2 -y
 ```
-3. 将本项目clone到默认路径下。
+4. 将本项目clone到默认路径下。
 ```bash
-sudo git clone https://github.com/Dioxane123/Arknights_guessr.git ~
+sudo git clone https://github.com/Dioxane123/Arknights_guessr.git ~/flaskapp
 ```
-4. 在用户目录中创建一个虚拟环境并安装所需包。
+5. 在用户目录中创建一个虚拟环境并安装所需包。
 ```bash
 cd ~
 mkdir guessr
@@ -52,7 +61,7 @@ python3 -m venv guessr
 source guessr/activate/bin
 pip install -r /var/www/flaskapp/requirements.txt
 ```
-5. 修改apache配置文件，将`flaskapp.conf`的ServerName对应值修改为你的域名或者服务器ip，并执行以下命令移动配置文件。
+6. 修改apache配置文件，将`flaskapp.conf`的ServerName对应值修改为你的域名或者服务器ip，并执行以下命令移动配置文件。
 ```bash
 sudo mv ~/flaskapp.conf /etc/apache2/sites-available
 ```
@@ -73,15 +82,12 @@ bash start_server.sh
 - 关于证书等等问题可以找其他教程或者直接问大模型，大模型确实好用啊👍
 
 ## 未来更新计划
-- [x] 完成数据库。
+- [x] 完成数据库（截至2025.5）。
 - [x] 支持部署在服务器上。
 - [x] 优化展示表格，在手机上能正常使用。
 - [ ] 表格展示干员头像。
 - [x] 支持本地多人在线对战。
 - [x] 支持服务器多人在线对战。
 ### 欢迎任何issue，有任何修改建议或者bug修正请直接提pr😘。
-<p align="center">
-    <img src="static/image/115411988_p13.jpg" width="300"><br>
-</p>
 
-> 图片来源：是屑天痕([pixiv](https://www.pixiv.net/users/80625765),[bilibili](https://space.bilibili.com/277914153))，温蒂可爱捏.
+> 头图来源：是屑天痕([pixiv](https://www.pixiv.net/users/80625765), [bilibili](https://space.bilibili.com/277914153))，温蒂可爱捏.
